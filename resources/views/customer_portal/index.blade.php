@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('taqseet_theme');
@@ -21,6 +21,25 @@
         })();
     </script>
     <style>
+        .theme-toggle-btn {
+            background: var(--surface, #FFFFFF);
+            border: 1px solid var(--border, #E2E8F0);
+            color: var(--text-primary, #0F172A);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-family: inherit;
+        }
+        .theme-toggle-btn:hover {
+            border-color: var(--primary, #6366F1);
+        }
         .badge {
             display: inline-block;
             padding: 4px 10px;
@@ -45,8 +64,10 @@
         }
         .modal-overlay.active { display: flex; }
         .modal-card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
+            background: var(--surface, #FFFFFF);
+            color: var(--text-primary, #0F172A);
+            border: 1px solid var(--border, #E2E8F0);
+            border-radius: var(--radius-lg, 20px);
             width: 100%;
             max-width: 480px;
             padding: 24px;
@@ -60,7 +81,7 @@
             <div style="font-weight: bold; color: var(--primary); font-size: 1rem;">
                 📱 بوابة العميل
             </div>
-            <button type="button" onclick="toggleThemePortal()" class="theme-toggle-btn">
+            <button type="button" id="portalThemeBtn" onclick="toggleThemePortal()" class="theme-toggle-btn">
                 <span id="portalThemeIcon">🌙</span>
                 <span id="portalThemeText">الوضع الداكن</span>
             </button>
@@ -98,7 +119,7 @@
                 <div style="font-size: 0.95rem; font-weight: bold; color: #0E9F6E;">{{ number_format($totalPaid, 2) }}</div>
                 <div style="font-size: 0.7rem; color: #0E9F6E;">ج.م</div>
             </div>
-            <div class="card" style="margin-bottom: 0; padding: 12px; text-align: center; border-color: #F8B4B4; background: #FDF2F2;">
+            <div class="card" style="margin-bottom: 0; padding: 12px; text-align: center; border-color: #F8B4B4; background: rgba(253, 242, 242, 0.5);">
                 <div style="font-size: 0.75rem; color: #9B1C1C; margin-bottom: 4px;">المتبقي عليك</div>
                 <div style="font-size: 0.95rem; font-weight: bold; color: #E02424;">{{ number_format($remainingAmount, 2) }}</div>
                 <div style="font-size: 0.7rem; color: #E02424;">ج.م</div>
@@ -106,7 +127,7 @@
         </div>
 
         <!-- Installments List -->
-        <h3 style="margin-bottom: 12px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin-bottom: 12px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; color: var(--text-primary);">
             <span>جدول الأقساط</span>
             <span style="font-size: 0.85rem; color: var(--text-secondary);">عدد الأقساط: {{ $allInstallments->count() }}</span>
         </h3>
@@ -120,7 +141,7 @@
                 <div class="card" style="margin-bottom: 0; padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <div>
-                            <div style="font-weight: bold; font-size: 1rem;">قسط رقم #{{ $index + 1 }}</div>
+                            <div style="font-weight: bold; font-size: 1rem; color: var(--text-primary);">قسط رقم #{{ $index + 1 }}</div>
                             <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">
                                 تاريخ الاستحقاق: {{ $installment->due_date->format('Y-m-d') }}
                             </div>
@@ -208,7 +229,7 @@
         }
 
         function toggleThemePortal() {
-            const current = document.documentElement.getAttribute('data-theme');
+            const current = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('taqseet_theme', next);
@@ -216,7 +237,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const activeTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             updatePortalToggleUI(activeTheme);
         });
 
