@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\ContractPdfController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPortalController;
@@ -32,6 +33,11 @@ Route::post('/installments/{id}/pay', [InstallmentController::class, 'pay'])->na
 Route::get('/plans/{id}/contract-pdf', [ContractPdfController::class, 'printContract'])->name('plans.contract_pdf');
 Route::get('/installments/{id}/receipt-pdf', [ContractPdfController::class, 'printReceipt'])->name('installments.receipt_pdf');
 
+// Admin Notifications System
+Route::get('/admin/api/notifications', [AdminNotificationController::class, 'getNotifications'])->name('admin.notifications.index');
+Route::post('/admin/api/notifications/{id}/read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+Route::post('/admin/api/notifications/read-all', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.read_all');
+
 // Customer Portal (Public token-based access)
 Route::get('/c/{token}', [CustomerPortalController::class, 'show'])->name('customer.portal');
 Route::post('/c/{token}/postpone', [CustomerPortalController::class, 'requestPostponement'])->name('customer.postpone');
@@ -40,5 +46,6 @@ Route::post('/c/{token}/postpone', [CustomerPortalController::class, 'requestPos
 Route::get('/admin/postponements', [PostponementAdminController::class, 'index'])->name('admin.postponements.index');
 Route::post('/admin/postponements/{id}/approve', [PostponementAdminController::class, 'approve'])->name('admin.postponements.approve');
 Route::post('/admin/postponements/{id}/reject', [PostponementAdminController::class, 'reject'])->name('admin.postponements.reject');
+
 
 

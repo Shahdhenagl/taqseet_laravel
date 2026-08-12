@@ -20,18 +20,109 @@
             }
         })();
     </script>
+    <style>
+        .notif-bell-btn {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+        }
+        .notif-panel {
+            display: none;
+            position: absolute;
+            top: 56px;
+            left: 16px;
+            right: 16px;
+            max-width: 440px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 3000;
+            padding: 16px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+        .notif-panel.active { display: block; }
+        .notif-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            transition: background 0.2s ease;
+        }
+        .notif-item.unread {
+            background: rgba(99, 102, 241, 0.08);
+            border-right: 4px solid var(--primary);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- Top App Bar with Theme Toggle -->
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; margin-bottom: 8px;">
+        <!-- Top App Bar with Theme Toggle and Notifications Bell -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; margin-bottom: 16px; position: relative;">
             <div style="font-weight: bold; color: var(--primary); font-size: 1.1rem; display: flex; align-items: center; gap: 6px;">
                 ⚡ تقسيط <span style="font-size: 0.75rem; background: var(--border); padding: 2px 8px; border-radius: 10px; color: var(--text-secondary);">Laravel 11</span>
             </div>
-            <button type="button" id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn">
-                <span id="themeIcon">🌙</span>
-                <span id="themeText">الوضع الداكن</span>
-            </button>
+            
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" onclick="toggleNotifPanel()" class="notif-bell-btn" title="التنبيهات وإشعارات الأقساط">
+                    🔔
+                    <span id="notifBadge" class="notif-badge" style="display: none;">0</span>
+                </button>
+
+                <button type="button" id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn">
+                    <span id="themeIcon">🌙</span>
+                    <span id="themeText">الوضع الداكن</span>
+                </button>
+            </div>
+
+            <!-- Notifications Dropdown Panel -->
+            <div id="notifPanel" class="notif-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 12px;">
+                    <h3 style="margin: 0; font-size: 1rem; color: var(--text-primary);">🔔 إشعارات وتنبيهات الأقساط</h3>
+                    <button type="button" onclick="markAllNotificationsRead()" style="background: none; border: none; color: var(--primary); font-size: 0.8rem; font-weight: bold; cursor: pointer;">
+                        تحديد الكل كمقروء
+                    </button>
+                </div>
+
+                <div style="margin-bottom: 10px; text-align: center;">
+                    <button type="button" onclick="requestBrowserPushPermission()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; width: 100%;">
+                        📱 تفعيل إشعارات المتصفح والكمبيوتر الفورية
+                    </button>
+                </div>
+
+                <div id="notifList">
+                    <div style="text-align: center; color: var(--text-secondary); padding: 20px; font-size: 0.875rem;">
+                        جاري تحميل الإشعارات...
+                    </div>
+                </div>
+            </div>
         </div>
 
         @if(session('success'))
@@ -109,9 +200,90 @@
             updateToggleUI(next);
         }
 
+        function toggleNotifPanel() {
+            const panel = document.getElementById('notifPanel');
+            panel.classList.toggle('active');
+            if (panel.classList.contains('active')) {
+                loadNotifications();
+            }
+        }
+
+        function loadNotifications() {
+            fetch('/admin/api/notifications')
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('notifBadge');
+                    if (data.unread_count > 0) {
+                        badge.innerText = data.unread_count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    const listContainer = document.getElementById('notifList');
+                    if (!data.notifications || data.notifications.length === 0) {
+                        listContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">لا توجد إشعارات حالياً.</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.notifications.forEach(n => {
+                        const unreadClass = n.is_read ? '' : 'unread';
+                        html += `
+                            <div class="notif-item ${unreadClass}">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                    <strong style="font-size: 0.9rem; color: var(--text-primary);">${n.title}</strong>
+                                    <span style="font-size: 0.75rem; background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px;">${n.label}</span>
+                                </div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">${n.message}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <a href="${n.url}" onclick="markNotifRead('${n.id}')" style="color: var(--primary); font-size: 0.8rem; font-weight: bold; text-decoration: underline;">
+                                        عرض الملف واستعراض القسط &rarr;
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    listContainer.innerHTML = html;
+                })
+                .catch(err => console.error(err));
+        }
+
+        function markNotifRead(id) {
+            fetch(`/admin/api/notifications/${id}/read`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+            });
+        }
+
+        function markAllNotificationsRead() {
+            fetch('/admin/api/notifications/read-all', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+            }).then(() => loadNotifications());
+        }
+
+        function requestBrowserPushPermission() {
+            if (!("Notification" in window)) {
+                alert("المتصفح لديك لا يدعم إشعارات الشاشة الفورية.");
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification("تقسيط - تم تفعيل الإشعارات 🔔", {
+                        body: "سيتم إرسال إشعارات الأقساط المستحقة مباشرة على شاشتك عند مواعيد الاستحقاق!",
+                        icon: "/favicon.ico"
+                    });
+                } else {
+                    alert("تم رفض إذن الإشعارات من المتصفح.");
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
             updateToggleUI(activeTheme);
+            loadNotifications();
         });
     </script>
 </body>
