@@ -18,6 +18,7 @@ Route::post('/products', [ProductController::class, 'store'])->name('products.st
 // Customers
 Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
 Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('customers.show');
 
 // POS / Cashier
 Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
