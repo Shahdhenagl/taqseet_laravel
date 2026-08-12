@@ -85,9 +85,14 @@
                 <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary);">عقد تقسيط رقم #{{ $planIndex + 1 }}</h3>
                 <span style="font-size: 0.8rem; color: var(--text-secondary);">تاريخ العقد: {{ $plan->created_at->format('Y-m-d') }}</span>
             </div>
-            <div style="text-align: left;">
-                <div style="font-size: 0.85rem; color: var(--text-secondary);">المتبقي في هذا العقد:</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: var(--danger);">{{ number_format($plan->remaining_amount, 2) }} ج.م</div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="{{ route('plans.contract_pdf', ['id' => $plan->id, 'html' => 1]) }}" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; width: auto;">
+                    🖨️ طباعة العقد PDF
+                </a>
+                <div style="text-align: left;">
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">المتبقي في العقد:</div>
+                    <div style="font-size: 1rem; font-weight: bold; color: var(--danger);">{{ number_format($plan->remaining_amount, 2) }} ج.م</div>
+                </div>
             </div>
         </div>
 
@@ -113,11 +118,14 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
                         @if($inst->is_paid)
                             <span style="color: #059669; font-weight: bold; background: #DEF7EC; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem;">
-                                تم السداد ✓ ({{ $inst->paid_date ? $inst->paid_date->format('Y-m-d') : '' }})
+                                تم السداد ✓
                             </span>
+                            <a href="{{ route('installments.receipt_pdf', ['id' => $inst->id, 'html' => 1]) }}" target="_blank" style="background: #10B981; color: white; border: none; padding: 4px 10px; border-radius: var(--radius-md); font-size: 0.75rem; text-decoration: none; font-weight: bold;">
+                                📄 طباعة إيصال
+                            </a>
                         @else
                             @if($pendingPostponement)
                                 <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold;">

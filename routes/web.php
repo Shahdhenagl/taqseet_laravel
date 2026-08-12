@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContractPdfController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPortalController;
 use App\Http\Controllers\DashboardController;
@@ -27,6 +28,10 @@ Route::post('/pos/checkout', [POSController::class, 'checkout'])->name('pos.chec
 // Installment Payments
 Route::post('/installments/{id}/pay', [InstallmentController::class, 'pay'])->name('installments.pay');
 
+// PDF Contracts and Receipts Generation
+Route::get('/plans/{id}/contract-pdf', [ContractPdfController::class, 'printContract'])->name('plans.contract_pdf');
+Route::get('/installments/{id}/receipt-pdf', [ContractPdfController::class, 'printReceipt'])->name('installments.receipt_pdf');
+
 // Customer Portal (Public token-based access)
 Route::get('/c/{token}', [CustomerPortalController::class, 'show'])->name('customer.portal');
 Route::post('/c/{token}/postpone', [CustomerPortalController::class, 'requestPostponement'])->name('customer.postpone');
@@ -35,4 +40,5 @@ Route::post('/c/{token}/postpone', [CustomerPortalController::class, 'requestPos
 Route::get('/admin/postponements', [PostponementAdminController::class, 'index'])->name('admin.postponements.index');
 Route::post('/admin/postponements/{id}/approve', [PostponementAdminController::class, 'approve'])->name('admin.postponements.approve');
 Route::post('/admin/postponements/{id}/reject', [PostponementAdminController::class, 'reject'])->name('admin.postponements.reject');
+
 
