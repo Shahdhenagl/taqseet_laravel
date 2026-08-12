@@ -39,8 +39,8 @@ Route::post('/admin/api/notifications/{id}/read', [AdminNotificationController::
 Route::post('/admin/api/notifications/read-all', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.read_all');
 
 // Customer Portal (Public token-based access)
-Route::get('/c/{token}', [CustomerPortalController::class, 'show'])->name('customer.portal');
-Route::post('/c/{token}/postpone', [CustomerPortalController::class, 'requestPostponement'])->name('customer.postpone');
+Route::get('/c/{token?}', [CustomerPortalController::class, 'show'])->name('customer.portal');
+Route::post('/c/{token?}/postpone', [CustomerPortalController::class, 'requestPostponement'])->name('customer.postpone');
 
 // Postponement Requests Admin Management
 Route::get('/admin/postponements', [PostponementAdminController::class, 'index'])->name('admin.postponements.index');

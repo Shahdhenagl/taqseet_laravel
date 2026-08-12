@@ -9,8 +9,12 @@ use Illuminate\Http\Request;
 
 class CustomerPortalController extends Controller
 {
-    public function show($token)
+    public function show($token = null)
     {
+        if (empty($token)) {
+            abort(404, 'رمز بوابة العميل غير متوفر.');
+        }
+
         $customer = Customer::where('access_token', $token)
             ->with(['installmentPlans.installments.latestPostponementRequest'])
             ->firstOrFail();
@@ -43,8 +47,12 @@ class CustomerPortalController extends Controller
         ));
     }
 
-    public function requestPostponement(Request $request, $token)
+    public function requestPostponement(Request $request, $token = null)
     {
+        if (empty($token)) {
+            abort(404, 'رمز بوابة العميل غير متوفر.');
+        }
+
         $customer = Customer::where('access_token', $token)->firstOrFail();
 
         $request->validate([
