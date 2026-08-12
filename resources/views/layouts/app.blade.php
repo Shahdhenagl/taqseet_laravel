@@ -8,9 +8,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('taqseet_theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
 </head>
 <body>
     <div class="container">
+        <!-- Top App Bar with Theme Toggle -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; margin-bottom: 8px;">
+            <div style="font-weight: bold; color: var(--primary); font-size: 1.1rem; display: flex; align-items: center; gap: 6px;">
+                ⚡ تقسيط <span style="font-size: 0.75rem; background: var(--border); padding: 2px 8px; border-radius: 10px; color: var(--text-secondary);">Laravel 11</span>
+            </div>
+            <button type="button" id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText">الوضع الداكن</span>
+            </button>
+        </div>
+
         @if(session('success'))
             <div class="card" style="background: #DEF7EC; color: #03543F; border-color: #84E1BC; padding: 12px 16px; margin-bottom: 16px; border-radius: var(--radius-md);">
                 {{ session('success') }}
@@ -63,5 +86,33 @@
             العملاء
         </a>
     </nav>
+
+    <script>
+        function updateToggleUI(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            if (!icon || !text) return;
+            if (theme === 'dark') {
+                icon.innerText = '☀️';
+                text.innerText = 'الوضع المضيء';
+            } else {
+                icon.innerText = '🌙';
+                text.innerText = 'الوضع الداكن';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('taqseet_theme', next);
+            updateToggleUI(next);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            updateToggleUI(activeTheme);
+        });
+    </script>
 </body>
 </html>

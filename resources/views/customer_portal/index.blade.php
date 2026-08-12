@@ -8,6 +8,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('taqseet_theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <style>
         .badge {
             display: inline-block;
@@ -44,7 +56,17 @@
 </head>
 <body>
     <div class="container" style="max-width: 500px; padding-bottom: 40px;">
-        <header style="margin-bottom: 20px; padding-top: 16px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; margin-bottom: 8px;">
+            <div style="font-weight: bold; color: var(--primary); font-size: 1rem;">
+                📱 بوابة العميل
+            </div>
+            <button type="button" onclick="toggleThemePortal()" class="theme-toggle-btn">
+                <span id="portalThemeIcon">🌙</span>
+                <span id="portalThemeText">الوضع الداكن</span>
+            </button>
+        </div>
+
+        <header style="margin-bottom: 20px; padding-top: 8px; text-align: center;">
             <div style="background: var(--primary); color: white; display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; margin-bottom: 12px;">
                 {{ mb_substr($customer->name, 0, 1) }}
             </div>
@@ -125,7 +147,7 @@
                                 <span style="font-size: 0.8rem; color: #92400E;">تم إرسال طلب تأجيل لتاريخ {{ $installment->latestPostponementRequest->requested_due_date->format('Y-m-d') }} وبانتظار الموافقة.</span>
                             @else
                                 <button type="button" onclick="openPostponeModal('{{ $installment->id }}', '{{ $installment->due_date->format('Y-m-d') }}', '{{ number_format($installment->amount, 2) }}')" 
-                                        style="background: #F3F4F6; color: var(--primary); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 6px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; width: 100%;">
+                                        style="background: var(--background); color: var(--primary); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: 8px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; width: 100%;">
                                     طلب تأجيل القسط ⏱️
                                 </button>
                             @endif
@@ -172,15 +194,38 @@
     </div>
 
     <script>
+        function updatePortalToggleUI(theme) {
+            const icon = document.getElementById('portalThemeIcon');
+            const text = document.getElementById('portalThemeText');
+            if (!icon || !text) return;
+            if (theme === 'dark') {
+                icon.innerText = '☀️';
+                text.innerText = 'الوضع المضيء';
+            } else {
+                icon.innerText = '🌙';
+                text.innerText = 'الوضع الداكن';
+            }
+        }
+
+        function toggleThemePortal() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('taqseet_theme', next);
+            updatePortalToggleUI(next);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            updatePortalToggleUI(activeTheme);
+        });
+
         function openPostponeModal(installmentId, currentDueDate, amount) {
             document.getElementById('modal_installment_id').value = installmentId;
-            
-            // set default min date to current due date + 1 day
             let d = new Date(currentDueDate);
             d.setDate(d.getDate() + 30);
             let nextMonth = d.toISOString().split('T')[0];
             document.getElementById('modal_requested_date').value = nextMonth;
-            
             document.getElementById('postponeModal').classList.add('active');
         }
 
