@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('taqseet_theme');
@@ -23,9 +23,9 @@
     <style>
         .notif-bell-btn {
             position: relative;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
+            background: var(--surface, #FFFFFF);
+            border: 1px solid var(--border, #E2E8F0);
+            color: var(--text-primary, #0F172A);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -35,11 +35,30 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
+        .theme-toggle-btn {
+            background: var(--surface, #FFFFFF);
+            border: 1px solid var(--border, #E2E8F0);
+            color: var(--text-primary, #0F172A);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-family: inherit;
+        }
+        .theme-toggle-btn:hover {
+            border-color: var(--primary, #6366F1);
+        }
         .notif-badge {
             position: absolute;
             top: -4px;
             right: -4px;
-            background: var(--danger);
+            background: var(--danger, #EF4444);
             color: white;
             border-radius: 50%;
             width: 20px;
@@ -59,10 +78,10 @@
             right: 16px;
             max-width: 440px;
             margin: 0 auto;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
+            background: var(--surface, #FFFFFF);
+            border: 1px solid var(--border, #E2E8F0);
+            border-radius: var(--radius-lg, 20px);
+            box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
             z-index: 3000;
             padding: 16px;
             max-height: 480px;
@@ -71,14 +90,14 @@
         .notif-panel.active { display: block; }
         .notif-item {
             padding: 12px;
-            border-bottom: 1px solid var(--border);
-            border-radius: var(--radius-sm);
+            border-bottom: 1px solid var(--border, #E2E8F0);
+            border-radius: var(--radius-sm, 8px);
             margin-bottom: 6px;
             transition: background 0.2s ease;
         }
         .notif-item.unread {
             background: rgba(99, 102, 241, 0.08);
-            border-right: 4px solid var(--primary);
+            border-right: 4px solid var(--primary, #6366F1);
         }
     </style>
 </head>
@@ -193,7 +212,7 @@
         }
 
         function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
+            const current = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('taqseet_theme', next);
@@ -281,7 +300,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const activeTheme = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             updateToggleUI(activeTheme);
             loadNotifications();
         });
