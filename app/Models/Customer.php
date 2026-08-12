@@ -18,6 +18,7 @@ class Customer extends Model
         'name',
         'phone_number',
         'whatsapp_number',
+        'access_token',
     ];
 
     protected static function boot()
@@ -26,6 +27,9 @@ class Customer extends Model
         static::creating(function ($model) {
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
+            }
+            if (empty($model->access_token)) {
+                $model->access_token = Str::random(32);
             }
         });
     }
@@ -38,5 +42,15 @@ class Customer extends Model
     public function installmentPlans()
     {
         return $this->hasMany(InstallmentPlan::class);
+    }
+
+    public function postponementRequests()
+    {
+        return $this->hasMany(PostponementRequest::class);
+    }
+
+    public function getPortalUrlAttribute()
+    {
+        return route('customer.portal', ['token' => $this->access_token]);
     }
 }

@@ -12,8 +12,14 @@
 <body>
     <div class="container">
         @if(session('success'))
-            <div className="card" style="background: #DEF7EC; color: #03543F; border-color: #84E1BC; padding: 12px 16px; margin-bottom: 16px; border-radius: var(--radius-md);">
+            <div class="card" style="background: #DEF7EC; color: #03543F; border-color: #84E1BC; padding: 12px 16px; margin-bottom: 16px; border-radius: var(--radius-md);">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="card" style="background: #FDE8E8; color: #9B1C1C; border-color: #F8B4B4; padding: 12px 16px; margin-bottom: 16px; border-radius: var(--radius-md);">
+                {{ session('error') }}
             </div>
         @endif
 
@@ -34,6 +40,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
             </svg>
             الكاشير
+        </a>
+
+        <a href="{{ route('admin.postponements.index') }}" class="nav-item {{ request()->routeIs('admin.postponements.*') ? 'active' : '' }}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            التأجيلات
         </a>
 
         <a href="{{ route('products.index') }}" class="nav-item {{ request()->routeIs('products.*') ? 'active' : '' }}">

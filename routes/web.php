@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerPortalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\POSController;
+use App\Http\Controllers\PostponementAdminController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,3 +25,13 @@ Route::post('/pos/checkout', [POSController::class, 'checkout'])->name('pos.chec
 
 // Installment Payments
 Route::post('/installments/{id}/pay', [InstallmentController::class, 'pay'])->name('installments.pay');
+
+// Customer Portal (Public token-based access)
+Route::get('/c/{token}', [CustomerPortalController::class, 'show'])->name('customer.portal');
+Route::post('/c/{token}/postpone', [CustomerPortalController::class, 'requestPostponement'])->name('customer.postpone');
+
+// Postponement Requests Admin Management
+Route::get('/admin/postponements', [PostponementAdminController::class, 'index'])->name('admin.postponements.index');
+Route::post('/admin/postponements/{id}/approve', [PostponementAdminController::class, 'approve'])->name('admin.postponements.approve');
+Route::post('/admin/postponements/{id}/reject', [PostponementAdminController::class, 'reject'])->name('admin.postponements.reject');
+

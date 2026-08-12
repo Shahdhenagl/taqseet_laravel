@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Installment extends Model
+class PostponementRequest extends Model
 {
     use HasFactory;
 
@@ -15,17 +15,17 @@ class Installment extends Model
 
     protected $fillable = [
         'id',
-        'amount',
-        'due_date',
-        'is_paid',
-        'paid_date',
-        'plan_id',
+        'customer_id',
+        'installment_id',
+        'requested_due_date',
+        'reason',
+        'status',
+        'extra_interest',
     ];
 
     protected $casts = [
-        'due_date' => 'date',
-        'paid_date' => 'datetime',
-        'is_paid' => 'boolean',
+        'requested_due_date' => 'date',
+        'extra_interest' => 'double',
     ];
 
     protected static function boot()
@@ -38,18 +38,13 @@ class Installment extends Model
         });
     }
 
-    public function plan()
+    public function customer()
     {
-        return $this->belongsTo(InstallmentPlan::class, 'plan_id');
+        return $this->belongsTo(Customer::class);
     }
 
-    public function postponementRequests()
+    public function installment()
     {
-        return $this->hasMany(PostponementRequest::class);
-    }
-
-    public function latestPostponementRequest()
-    {
-        return $this->hasOne(PostponementRequest::class)->latestOfMany();
+        return $this->belongsTo(Installment::class);
     }
 }

@@ -83,18 +83,22 @@
                 </div>
             @endforeach
 
-            <!-- WhatsApp Reminder Button -->
-            @if($customer->whatsapp_number || $customer->phone_number)
-                @php
-                    $phone = $customer->whatsapp_number ?: $customer->phone_number;
-                    $text = urlencode("مرحباً {$customer->name}، نود تذكيركم بموعد سداد القسط المستحق لتطبيق تقسيط. شكراً لتفهمكم.");
-                @endphp
-                <div style="margin-top: 12px;">
-                    <a href="https://wa.me/{{ $phone }}?text={{ $text }}" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        💬 إرسال رسالة تذكير عبر الواتساب
+            <!-- WhatsApp & Customer Portal Link -->
+            @php
+                $phone = $customer->whatsapp_number ?: $customer->phone_number;
+                $portalUrl = route('customer.portal', ['token' => $customer->access_token]);
+                $waMessage = urlencode("مرحباً {$customer->name} 👋\nيمكنك متابعة جدول أقساطك والمتبقي عليك وتقديم طلبات التأجيل مباشرة عبر هذا الرابط الخاص بك:\n" . $portalUrl);
+            @endphp
+            <div style="margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                @if($phone)
+                    <a href="https://wa.me/{{ $phone }}?text={{ $waMessage }}" target="_blank" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; background: #25D366; color: white; border: none;">
+                        💬 إرسال رابط البوابة بالواتساب
                     </a>
-                </div>
-            @endif
+                @endif
+                <button type="button" onclick="navigator.clipboard.writeText('{{ $portalUrl }}'); alert('تم نسخ رابط بوابة العميل بنجاح!');" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem;">
+                    📋 نسخ رابط البوابة
+                </button>
+            </div>
         </div>
     @endforeach
 </div>

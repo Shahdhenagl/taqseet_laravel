@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Installment;
+use App\Models\PostponementRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,13 @@ class DashboardController extends Controller
 
         $productsCount = Product::count();
         $customersCount = Customer::count();
+        $pendingPostponementsCount = PostponementRequest::where('status', 'pending')->count();
 
-        return view('dashboard', compact('pendingInstallmentsCount', 'productsCount', 'customersCount'));
+        return view('dashboard', compact(
+            'pendingInstallmentsCount',
+            'productsCount',
+            'customersCount',
+            'pendingPostponementsCount'
+        ));
     }
 }
