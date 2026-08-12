@@ -90,7 +90,8 @@
             <!-- Profile & WhatsApp Buttons -->
             @php
                 $phone = $customer->whatsapp_number ?: $customer->phone_number;
-                $portalUrl = route('customer.portal', ['token' => $customer->access_token]);
+                $token = $customer->access_token ?: ('token_' . substr(md5($customer->id), 0, 16));
+                $portalUrl = route('customer.portal', ['token' => $token]);
                 $waMessage = urlencode("مرحباً {$customer->name} 👋\nيمكنك متابعة جدول أقساطك والمتبقي عليك وتقديم طلبات التأجيل مباشرة عبر رابطك الخاص:\n" . $portalUrl);
             @endphp
             

@@ -26,11 +26,11 @@ class Customer extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = (string) Str::uuid();
+            if (empty($model->attributes['id'])) {
+                $model->attributes['id'] = (string) Str::uuid();
             }
-            if (empty($model->access_token)) {
-                $model->access_token = Str::random(32);
+            if (empty($model->attributes['access_token'])) {
+                $model->attributes['access_token'] = Str::random(32);
             }
         });
     }
@@ -52,6 +52,7 @@ class Customer extends Model
 
     public function getPortalUrlAttribute()
     {
-        return route('customer.portal', ['token' => $this->access_token]);
+        $token = $this->access_token ?: ('token_' . substr(md5($this->id), 0, 16));
+        return route('customer.portal', ['token' => $token]);
     }
 }
